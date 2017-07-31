@@ -55,7 +55,7 @@ app.post('/todos', function(req, res) {
     
     console.log(body);
     if(typeof body !== 'undefined') {
-    body.id = nextTodoID ++;
+    body.id = nextTodoID++;
     todos.push(body);        
     }
 
@@ -63,7 +63,46 @@ app.post('/todos', function(req, res) {
     res.json(body);
 });
 
+app.delete('/todos/:id', function(req, res) {
+   var  deleteID = parseInt(req.params.id);
+    console.log(deleteID)
+    var deleteToDo = _.findWhere(todos, {id: deleteID});
+    console.log(deleteToDo);
+    
+    if(deleteToDo){
+   todos =  _.without(todos, deleteToDo);
+    res.send('record on ID: ' + deleteID + ' deleted');        
+    } else {
+        res.status(404).json({"error": "Record not found"});
+    }
+});
 
+app.put('/todos/:id', function(req, res) {
+    console.log('inPUT');   
+   var body = _.pick(req.body, 'description', 'isCompleted');
+    var  UpdateID = parseInt(req.params.id);
+    var updateToDo = _.findWhere(todos, {id: UpdateID});
+    var validAttributes = {};
+    
+    if(body.hasOwnProperty('isCompleted') && _.isBoolean(body.isCompleted)) {
+        validAttributes.isCompleted = body.isCompleted; 
+       // console.log('inFAR');
+    } else if(body.hasOwnProperty('isCompleted')) {
+        console.log('ingar');
+        return res.status(400).send();
+    }
+    
+     if(body.hasOwnProperty('description') && _.isString(body.description)  && body.description.trim().length > 0) {
+        validAttributes.description = body.description;
+         //console.log('inHar');
+    } else if(body.hasOwnProperty('description')) {
+        //console.log('inshar');
+        return res.status(400).send();
+    }
+     _.extend(updateToDo, validAttributes);
+    res.json(updateToDo);
+
+});
 
 app.listen(port, function() {
     console.log('Server Started'); 
