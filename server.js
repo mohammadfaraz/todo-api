@@ -31,15 +31,19 @@ app.get('/', function(req, res) {
 app.get('/todos', function(req, res) {
     var queryParams = req.query;
     var filteredToDos = todos;
-    console.log(filteredToDos);
+    //console.log(filteredToDos);
     if(queryParams.hasOwnProperty('isCompleted') && queryParams.isCompleted === 'true') {
         filteredToDos = _.where(filteredToDos, { isCompleted: true });
-        console.log( 'in India');
+       // console.log( 'in India');
     } else    if(queryParams.hasOwnProperty('isCompleted') && queryParams.isCompleted === 'false') {
         filteredToDos = _.where(filteredToDos, { isCompleted: false});
-                console.log(filteredToDos);
-
     }
+    if(queryParams.hasOwnProperty('q') && _.isString(queryParams.q)) {
+        filteredToDos = _.filter(filteredToDos, function(ToDo) {
+           return ToDo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;
+        }); 
+    }
+    console.log(filteredToDos);
     res.json(filteredToDos);
 });
 app.get('/todos/:id', function(req, res) {
