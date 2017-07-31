@@ -10,17 +10,17 @@ app.use(bodyParser.json());
 var todos = [{
     id: nextTodoID++,
     description: 'Meet mom for lunch',
-    isCompleted: 'false'
+    isCompleted: false
     },
     {
     id: nextTodoID++,
     description: 'Go to market',
-    isCompleted: 'false'
+    isCompleted: false
     },
     {
     id: nextTodoID++,
     description: 'Get Shaved',
-    isCompleted: 'true'
+    isCompleted: true
     }];
 
 
@@ -29,7 +29,18 @@ app.get('/', function(req, res) {
    res.send('TODO API Root');
 });
 app.get('/todos', function(req, res) {
-   res.json(todos);
+    var queryParams = req.query;
+    var filteredToDos = todos;
+    console.log(filteredToDos);
+    if(queryParams.hasOwnProperty('isCompleted') && queryParams.isCompleted === 'true') {
+        filteredToDos = _.where(filteredToDos, { isCompleted: true });
+        console.log( 'in India');
+    } else    if(queryParams.hasOwnProperty('isCompleted') && queryParams.isCompleted === 'false') {
+        filteredToDos = _.where(filteredToDos, { isCompleted: false});
+                console.log(filteredToDos);
+
+    }
+    res.json(filteredToDos);
 });
 app.get('/todos/:id', function(req, res) {
  
