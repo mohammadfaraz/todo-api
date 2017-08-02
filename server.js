@@ -3,7 +3,7 @@ var bodyParser = require('body-parser');
 var db = require('./db.js');
 var app = express();
 var _ = require('underscore');
-var nextTodoID = 0;
+//var nextTodoID = 0;
 var port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
@@ -15,8 +15,6 @@ app.get('/', function(req, res) {
 app.get('/todos', function(req, res) {
     var queryParams = req.query;
     var where = {};
-
-
     if(queryParams.hasOwnProperty('isCompleted') && queryParams.isCompleted === 'true') {
         where.isCompleted = true;
 
@@ -27,9 +25,7 @@ app.get('/todos', function(req, res) {
         where.description = {
             $like: '%' + queryParams.q + '%'
         } 
-
     } 
-
     db.todo.findAll({where: where}).then(function(foundTodos) {
         res.json(foundTodos);
     }, function(e) {
@@ -38,31 +34,7 @@ app.get('/todos', function(req, res) {
 });
 
 app.get('/todos/:id', function(req, res) {
-
     var id = parseInt(req.params.id);
-
-    db.todo.findById(id).then(function(foundTodo) {
-        if(foundTodo) {
-            res.json(foundTodo.toJSON());
-        } else {
-            res.status(400).json({"error": "RECORD NOT FOUND"});
-        }
-    }, function(e) {
-        res.status(500).json(e.message);
-    });    
-} 
-
-        db.todo.findAll({where: where}).then(function(foundTodos) {
-    res.json(foundTodos);
-}, function(e) {
-    res.status(500).json(e.message);
-});
-});
-
-app.get('/todos/:id', function(req, res) {
-
-    var id = parseInt(req.params.id);
-
     db.todo.findById(id).then(function(foundTodo) {
         if(foundTodo) {
             res.json(foundTodo.toJSON());
@@ -84,7 +56,7 @@ app.post('/todos', function(req, res) {
     });
 });
 
-app.delete('/todos/:id', function(req, res) {
+/*app.delete('/todos/:id', function(req, res) {
     var  deleteID = parseInt(req.params.id);
     console.log(deleteID)
     var deleteToDo = _.findWhere(todos, {id: deleteID});
@@ -120,7 +92,7 @@ app.put('/todos/:id', function(req, res) {
     _.extend(updateToDo, validAttributes);
     res.json(updateToDo);
 
-});
+});*/
 
 
 db.sequelize.sync().then(function() {
