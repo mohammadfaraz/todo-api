@@ -8,24 +8,6 @@ var port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
-var todos = [{
-    id: nextTodoID++,
-    description: 'Meet mom for lunch',
-    isCompleted: false
-},
-             {
-                 id: nextTodoID++,
-                 description: 'Go to market',
-                 isCompleted: false
-             },
-             {
-                 id: nextTodoID++,
-                 description: 'Get Shaved',
-                 isCompleted: true
-             }];
-
-
-
 app.get('/', function(req, res) {
     res.send('TODO API Root');
 });
