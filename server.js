@@ -74,24 +74,28 @@ app.put('/todos/:id', function(req, res) {
     console.log('inPUT');   
     var body = _.pick(req.body, 'description', 'isCompleted');
     var  UpdateID = parseInt(req.params.id);
-    var updateToDo = _.findWhere(todos, {id: UpdateID});
-    var validAttributes = {};
+    var attributes = {};
 
-    if(body.hasOwnProperty('isCompleted') && _.isBoolean(body.isCompleted)) {
-        validAttributes.isCompleted = body.isCompleted; 
-    } else if(body.hasOwnProperty('isCompleted')) {
-        console.log('ingar');
-        return res.status(400).send();
+    if(body.hasOwnProperty('isCompleted')) {
+        attributes.isCompleted = body.isCompleted; 
+    } 
+    if(body.hasOwnProperty('description')) {
+        attributes.description = body.description;
     }
 
-    if(body.hasOwnProperty('description') && _.isString(body.description)  && body.description.trim().length > 0) {
-        validAttributes.description = body.description;
-    } else if(body.hasOwnProperty('description')) {
-        return res.status(400).send();
-    }
-    _.extend(updateToDo, validAttributes);
-    res.json(updateToDo);
-
+    db.todo.findById(UpdateID).then(function(todo){
+        if(todo) {
+            return todo.update(attributes);
+        } else {
+            res.status(404).json('Record not found');
+        }
+    }, function(e) {
+        res.send(500).json(e.message);
+    }).then(function(todo){
+        res.json(todo.toJSON());
+    }, function(e) {
+        res.status(400).json(e.message);
+    });
 });
 
 
