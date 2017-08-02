@@ -15,17 +15,19 @@ app.get('/', function(req, res) {
 app.get('/todos', function(req, res) {
     var queryParams = req.query;
     var where = {};
+
+
     if(queryParams.hasOwnProperty('isCompleted') && queryParams.isCompleted === 'true') {
         where.isCompleted = true;
 
     } else if(queryParams.hasOwnProperty('isCompleted') && queryParams.isCompleted === 'false') {
         where.isCompleted = false;
-
     }
     if(queryParams.hasOwnProperty('q') && _.isString(queryParams.q)) {
         where.description = {
             $like: '%' + queryParams.q + '%'
         } 
+
     } 
 
     db.todo.findAll({where: where}).then(function(foundTodos) {
@@ -48,6 +50,28 @@ app.get('/todos/:id', function(req, res) {
     }, function(e) {
         res.status(500).json(e.message);
     });    
+} 
+
+        db.todo.findAll({where: where}).then(function(foundTodos) {
+    res.json(foundTodos);
+}, function(e) {
+    res.status(500).json(e.message);
+});
+});
+
+app.get('/todos/:id', function(req, res) {
+
+    var id = parseInt(req.params.id);
+
+    db.todo.findById(id).then(function(foundTodo) {
+        if(foundTodo) {
+            res.json(foundTodo.toJSON());
+        } else {
+            res.status(400).json({"error": "RECORD NOT FOUND"});
+        }
+    }, function(e) {
+        res.status(500).json(e.message);
+    });
 });
 
 app.post('/todos', function(req, res) {
