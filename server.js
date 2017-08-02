@@ -32,33 +32,50 @@ app.get('/', function(req, res) {
 
 app.get('/todos', function(req, res) {
     var queryParams = req.query;
-    var filteredToDos = todos;
+    var where = {};
     //console.log(filteredToDos);
     if(queryParams.hasOwnProperty('isCompleted') && queryParams.isCompleted === 'true') {
-        filteredToDos = _.where(filteredToDos, { isCompleted: true });
-       // console.log( 'in India');
-    } else    if(queryParams.hasOwnProperty('isCompleted') && queryParams.isCompleted === 'false') {
-        filteredToDos = _.where(filteredToDos, { isCompleted: false});
+        where.isCompleted = true;
+
+    } else if(queryParams.hasOwnProperty('isCompleted') && queryParams.isCompleted === 'false') {
+        where.isCompleted = false;
+        
     }
     if(queryParams.hasOwnProperty('q') && _.isString(queryParams.q)) {
-        filteredToDos = _.filter(filteredToDos, function(ToDo) {
-           return ToDo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;
-        }); 
-    }
-    console.log(filteredToDos);
-    res.json(filteredToDos);
+        where.description = {
+            $like: '%' + queryParams.q + '%'
+        } 
+       } 
+    
+   db.todo.findAll({where: where}).then(function(foundTodos) {
+       res.json(foundTodos);
+   }, function(e) {
+       res.status(500).json(e.message);
+   });
 });
 
 app.get('/todos/:id', function(req, res) {
  
-    var matchedToDO = _.findWhere(todos, { id: parseInt(req.params.id)});
+    var id = parseInt(req.params.id);
+    
+    db.todo.findById(id).then(function(foundTodo) {
+       if(foundTodo) {
+           res.json(foundTodo.toJSON());
+       } else {
+           res.status(400).json({"error": "RECORD NOT FOUND"});
+       }
+    }, function(e) {
+        res.status(500).json(e.message);
+    });
+    
+    /*var matchedToDO = _.findWhere(todos, { id: parseInt(req.params.id)});
     //console.log(matchedToDO);
     if(matchedToDO) {
             res.json(matchedToDO);
     } else {
              res.status(404).send();
             //console.log('in else');
-    }
+    }*/
     
 });
 
