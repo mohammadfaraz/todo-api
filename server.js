@@ -59,15 +59,19 @@ app.post('/todos', function(req, res) {
 app.delete('/todos/:id', function(req, res) {
     var  deleteID = parseInt(req.params.id);
     console.log(deleteID)
-    var deleteToDo = db.todo.findById(deleteID).then(function(deleteTodo) {
-        return deleteTodo.destroy().then(function(deleteTodo) {
-            res.json({"message": "Deleted",
-                      "Record": deleteTodo }); 
-        });
+    db.todo.findById(deleteID).then(function(deleteTodo) {
+        if(deleteTodo){
+            deleteTodo.destroy().then(function(deleteTodo) {
+                res.json({"message": "Deleted",
+                          "Record": deleteTodo }); 
+            }); 
+        } else {
+            res.status(404).json({"error": "Record Not found"});
+        } 
     }, function(e) {
-        res.status(404).json({"error": "Record Not found"})
+        res.status(500);
     });
-    console.log(deleteToDo.toJSON());
+   // console.log(deleteToDo.toJSON());
 });
 
 app.put('/todos/:id', function(req, res) {
@@ -85,16 +89,16 @@ app.put('/todos/:id', function(req, res) {
 
     db.todo.findById(UpdateID).then(function(todo){
         if(todo) {
-            return todo.update(attributes);
+            todo.update(attributes).then(function(todo){
+                res.json(todo.toJSON());
+            }, function(e) {
+                res.status(400).json(e.message);
+            });
         } else {
             res.status(404).json('Record not found');
         }
     }, function(e) {
         res.send(500).json(e.message);
-    }).then(function(todo){
-        res.json(todo.toJSON());
-    }, function(e) {
-        res.status(400).json(e.message);
     });
 });
 
