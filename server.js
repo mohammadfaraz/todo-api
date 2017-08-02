@@ -56,18 +56,18 @@ app.post('/todos', function(req, res) {
     });
 });
 
-/*app.delete('/todos/:id', function(req, res) {
+app.delete('/todos/:id', function(req, res) {
     var  deleteID = parseInt(req.params.id);
     console.log(deleteID)
-    var deleteToDo = _.findWhere(todos, {id: deleteID});
-    console.log(deleteToDo);
-
-    if(deleteToDo){
-        todos =  _.without(todos, deleteToDo);
-        res.send('record on ID: ' + deleteID + ' deleted');        
-    } else {
-        res.status(404).json({"error": "Record not found"});
-    }
+    var deleteToDo = db.todo.findById(deleteID).then(function(deleteTodo) {
+        return deleteTodo.destroy().then(function(deleteTodo) {
+            res.json({"message": "Deleted",
+                      "Record": deleteTodo }); 
+        });
+    }, function(e) {
+        res.status(404).json({"error": "Record Not found"})
+    });
+    console.log(deleteToDo.toJSON());
 });
 
 app.put('/todos/:id', function(req, res) {
@@ -92,7 +92,7 @@ app.put('/todos/:id', function(req, res) {
     _.extend(updateToDo, validAttributes);
     res.json(updateToDo);
 
-});*/
+});
 
 
 db.sequelize.sync().then(function() {
