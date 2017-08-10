@@ -98,10 +98,25 @@ app.put('/todos/:id', function(req, res) {
             res.status(404).json('Record not found');
         }
     }, function(e) {
-        res.send(500).json(e.message);
+        res.status(500).json(e.message);
     });
 });
 
+app.post('/signup', function(req, res) {
+    var body = _.pick(req.body, 'email', 'password');
+    console.log(body);
+    
+    db.user.create(body).then(function(detail) {
+        if(detail) {
+            res.json(detail.toJSON());
+        } else {
+            res.status(404).send(' Data Not Found');
+        }
+    } , function(e) {
+         res.status(400).send(e);
+    });
+    
+});
 
 db.sequelize.sync().then(function() {
     app.listen(port, function() {
